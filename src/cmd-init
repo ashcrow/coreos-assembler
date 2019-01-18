@@ -106,22 +106,27 @@ fi
 
 # Get target architecture
 arch=$(uname -m)
-release="28"
+[ -n "${ISFEDORA}" ] && release="28"
+[ -n "${ISEL}" ]     && release="7.6-20181010.0"
 
 # Download url is different for primary and secondary fedora
 # Primary Fedora - https://download.fedoraproject.org/pub/fedora/linux/releases/
 # Secondary Fedora - https://download.fedoraproject.org/pub/fedora-secondary/releases/
-declare -A repository_dirs
-repository_dirs[aarch64]=fedora/linux
-repository_dirs[armhfp]=fedora/linux
-repository_dirs[x86_64]=fedora/linux
-repository_dirs[i386]=fedora-secondary
-repository_dirs[ppc64le]=fedora-secondary
-repository_dirs[s390x]=fedora-secondary
-
-repository_dir=${repository_dirs[$arch]}
-INSTALLER=https://download.fedoraproject.org/pub/$repository_dir/releases/$release/Everything/$arch/iso/Fedora-Everything-netinst-$arch-$release-1.1.iso
-INSTALLER_CHECKSUM=https://download.fedoraproject.org/pub/$repository_dir/releases/$release/Everything/$arch/iso/Fedora-Everything-$release-1.1-$arch-CHECKSUM
+if [ -n "${ISEL}" ]; then
+    INSTALLER=http://download-node-02.eng.bos.redhat.com/released/RHEL-7/7.6/Server/$arch/iso/RHEL-$release-Server-$arch-boot.iso
+    INSTALLER_CHECKSUM=http://download-node-02.eng.bos.redhat.com/released/RHEL-7/7.6/Server/$arch/iso/RHEL-$release-Server-$arch-boot.iso.SHA256SUM
+elif [ -n "${ISFEDORA}" ]; then
+    declare -A repository_dirs
+    repository_dirs[aarch64]=fedora/linux
+    repository_dirs[armhfp]=fedora/linux
+    repository_dirs[x86_64]=fedora/linux
+    repository_dirs[i386]=fedora-secondary
+    repository_dirs[ppc64le]=fedora-secondary
+    repository_dirs[s390x]=fedora-secondary
+    repository_dir=${repository_dirs[$arch]}
+    INSTALLER=https://download.fedoraproject.org/pub/$repository_dir/releases/$release/Everything/$arch/iso/Fedora-Everything-netinst-$arch-$release-1.1.iso
+    INSTALLER_CHECKSUM=https://download.fedoraproject.org/pub/$repository_dir/releases/$release/Everything/$arch/iso/Fedora-Everything-$release-1.1-$arch-CHECKSUM
+fi
 
 set -x
 # Initialize sources (git)
